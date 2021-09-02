@@ -16,7 +16,7 @@ authors:
     orcid: 0000-0002-8810-9128
     affiliation: 1
 affiliations:
- - name: Safran Tech, Digital Sciences & Technologies Department, Rue des Jeunes Bois, Ch\^ateaufort, 78114 Magny-Les-Hameaux, France
+ - name: Safran Tech, Digital Sciences & Technologies Department, Rue des Jeunes Bois, Châteaufort, 78114 Magny-Les-Hameaux, France
    index: 1
 date: 2 September 2021
 bibliography: paper.bib
