@@ -9,7 +9,7 @@ tags:
   - post-treatment
 authors:
   - name: Felipe Bordeu
-    affiliation: 1 # (Multiple affiliations must be quoted)
+    affiliation: 1
   - name: Julien Cortial
     affiliation: 1
   - name: Fabien Casenave
@@ -38,8 +38,8 @@ volume and surfaces.
 
 BasicTools has been used in various projects in artificial intelligence and 
 model order reduction for physical problems [@ROM-net], [@mca26010017], 
-[@UQindustrialDesign], [@datatargetVAE], topological optimization~(travaux 
-citant BasicTools ?) and~material sciences~(travaux BigMeca).
+[@UQindustrialDesign], [@datatargetVAE], topological optimization (travaux 
+citant BasicTools ?) and material sciences (travaux BigMeca).
 
 
 
