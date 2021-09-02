@@ -37,8 +37,8 @@ volume and surfaces.
 # Statement of need
 
 BasicTools has been used in various projects in artificial intelligence and 
-model order reduction for physical problems [@ROM-net, @mca26010017, 
-@UQindustrialDesign, @datatargetVAE], topological optimization~(travaux 
+model order reduction for physical problems [@ROM-net], [@mca26010017], 
+[@UQindustrialDesign], [@datatargetVAE], topological optimization~(travaux 
 citant BasicTools ?) and~material sciences~(travaux BigMeca).
 
 
