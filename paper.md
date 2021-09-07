@@ -8,11 +8,11 @@ tags:
   - finite elements
   - post-treatment
 authors:
-  - name: Felipe Bordeu^[first author, corresponding author]
+  - name: Felipe Bordeu^[first author]
     affiliation: 1
   - name: Julien Cortial
     affiliation: 1
-  - name: Fabien Casenave
+  - name: Fabien Casenave^[corresponding author]
     orcid: 0000-0002-8810-9128
     affiliation: 1
 affiliations:
