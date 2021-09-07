@@ -8,7 +8,7 @@ tags:
   - finite elements
   - post-treatment
 authors:
-  - name: Felipe Bordeu
+  - name: Felipe Bordeu^[first author, corresponding author]
     affiliation: 1
   - name: Julien Cortial
     affiliation: 1
@@ -27,7 +27,7 @@ bibliography: paper.bib
 
 Numerical simulations of physical phenomena are computed by various available codes, 
 but many similar operations are required when producing these simulations. Post-treatments
- of physical fields are a common need, as well as handling and modifying meshes and 
+of physical fields are a common need, as well as handling and modifying meshes and 
 fields. BasicTools is a library addressing these supporting tasks. It contains an 
 efficient data model for mesh and field objects and input/output routines compatible 
 with various formats. A finite element engine allows the assembling of abstract 
