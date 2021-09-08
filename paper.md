@@ -8,11 +8,11 @@ tags:
   - finite elements
   - post-treatment
 authors:
-  - name: Felipe Bordeu^[first author]^[corresponding author]
+  - name: Felipe Bordeu^[first author]
     affiliation: 1
   - name: Julien Cortial
     affiliation: 1
-  - name: Fabien Casenave
+  - name: Fabien Casenave^[corresponding author]
     orcid: 0000-0002-8810-9128
     affiliation: 1
 affiliations:
@@ -25,14 +25,7 @@ bibliography: paper.bib
 
 # Summary
 
-Numerical simulations of physical phenomena are computed by various available codes, 
-but many similar operations are required when producing these simulations. Post-treatments
-of physical fields are a common need, as well as handling and modifying meshes and 
-fields. BasicTools is a library addressing these supporting tasks. It contains an 
-efficient data model for mesh and field objects and input/output routines compatible 
-with various formats. A finite element engine allows the assembling of abstract 
-variational formulation, differential operators and the integration of fields on 
-volume and surfaces.
+Numerical simulations of physical phenomena are computed by various available codes, but many similar operations are required when producing these simulations. Post-treatments of physical fields are a common need, as well as handling and modifying meshes and fields. BasicTools is a library addressing these supporting tasks. It contains an efficient data model for mesh and field objects and input/output routines compatible with various formats. A finite element engine allows the assembling of abstract variational formulation, differential operators and the integration of fields on volume and surfaces.
 
 # Statement of need
 
@@ -65,10 +58,17 @@ and refer to \autoref{eq:fourier} from text.
 ![Example of deep learning prepost.\label{fig:DeepLearningPrepost}](DeepLearningPrepost.png){ width=100% }
 See Figure \autoref{fig:DeepLearningPrepost}.
 
+![Example of mesh morphing and field projection.\label{fig:MeshMorphFieldProj}](MeshMorphFieldProj.png){ width=100% }
+See Figure \autoref{fig:MeshMorphFieldProj}.
 
+# Examples
+
+
+<!-- 
 # Acknowledgements
 
 We acknowledge contributions from ...
+-->
 
 # References
 
