@@ -139,8 +139,7 @@ writer.Close()
 
 
 from BasicTools.FE.Integration import IntegrateGeneral
-from BasicTools.FE.SymWeakForm import GetField
-from BasicTools.FE.SymWeakForm import GetTestField
+from BasicTools.FE.SymWeakForm import GetField, GetTestField
 
 F = GetField("F",1)
 Tt = GetTestField("T",1)
