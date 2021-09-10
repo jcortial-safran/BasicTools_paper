@@ -12,7 +12,6 @@ reader.Read()
 dom = reader.xdmf.GetDomain(0)
 grid = dom.GetGrid(0)
 
-
 # Read the mesh
 unstructuredMesh = grid.GetSupport()
 for _,el in unstructuredMesh.elements.items():
@@ -38,7 +37,6 @@ rectMesh.SetDimensions([Nx,Ny])
 rectMesh.SetSpacing([Lx/(Nx-1), Ly/(Ny-1)])
 rectMesh.SetOrigin([0.,unstructuredMesh.boundingMin[1]])
 
-
 # Compute the projection operator from unstructured mesh to structured mesh
 from BasicTools.Containers.UnstructuredMeshCreationTools import CreateMeshFromConstantRectilinearMesh
 from BasicTools.FE.FETools import PrepareFEComputation
@@ -52,10 +50,8 @@ methods = ["Interp/Nearest","Nearest/Nearest","Interp/Clamp","Interp/Extrap","In
 method = methods[2]
 operator, status = GetFieldTransferOp(inputFEField, unstructuredRectMesh.nodes, method = method, verbose=True)
 
-
 # Compute the projected field on the structured mesh
 projectedU = operator.dot(U)
-
 
 # Export the structured mesh and projected field in xdmf format
 from BasicTools.IO import XdmfWriter as XW
@@ -64,7 +60,6 @@ writer.SetHdf5(False)
 writer.Open()
 writer.Write(rectMesh,PointFields=[projectedU.reshape((Nx,Ny,2))], PointFieldsNames=["U"]);
 writer.Close()
-
 
 
 ##################
@@ -78,10 +73,8 @@ method = methods[2]
 
 operator, status = GetFieldTransferOp(inputFEField, unstructuredMesh.nodes, method = method, verbose=True)
 
-
 # Compute the inverse-projected projected field on the unstructured mesh
 inverseProjected_ProjectedU = operator.dot(projectedU)
-
 
 # Export the unstructured mesh and inverse-projected projected field in xdmf format
 writer = XW.XdmfWriter('PostprocessedData.xdmf')
@@ -113,42 +106,68 @@ nbeOfNodes = unstructuredMeshClipped.GetNumberOfNodes()
 
 deltaClippedMesh = unstructuredMeshClipped.nodeFields['delta']
 
+from BasicTools.Helpers.TextFormatHelper import TFormat
+from BasicTools.Helpers.Timer import Timer
 
-# Compute the L2(Omega) norm of U, InvProjProjU and delta applying numerical quadrature
-# from Lagrange P1 finite element integration using three different methods
+print("--")
+string = "Compute the L2(Omega) norm of delta by applying numerical quadrature from Lagrange P1\n"
+TFormat.II(2)
+string += TFormat.GetIndent() + "finite element integration using three different methods"
+print(string)
+TFormat.Reset()
 
-# Method 1: "by hand" 
+#### Method 1
+print(TFormat.Center(TFormat.InRed("Method 1:")+TFormat.InBlue("'by hand'")))
 
-integrationWeights, phiAtIntegPoint = ComputePhiAtIntegPoint(unstructuredMeshClipped)
+timer = Timer("Duration of method 1")
 
-vectDeltaAtIntegPoints = np.empty((2,phiAtIntegPoint.shape[0]))
-for i in range(2):
-    vectDeltaAtIntegPoints[i] = phiAtIntegPoint.dot(deltaClippedMesh[:,i])
+#compute method 1 three times
+for i in range(3):
+    timer.Start()
+    integrationWeights, phiAtIntegPoint = ComputePhiAtIntegPoint(unstructuredMeshClipped)
 
-normDeltaMethod1 = np.sqrt(np.einsum('ij,ij,j', vectDeltaAtIntegPoints, vectDeltaAtIntegPoints, integrationWeights, optimize = True))
+    vectDeltaAtIntegPoints = np.empty((2,phiAtIntegPoint.shape[0]))
+    for i in range(2):
+        vectDeltaAtIntegPoints[i] = phiAtIntegPoint.dot(deltaClippedMesh[:,i])
 
-# Method 2: using the mass matrix
+    normDeltaMethod1 = np.sqrt(np.einsum('ij,ij,j', vectDeltaAtIntegPoints, vectDeltaAtIntegPoints, integrationWeights, optimize = True))
+    timer.Stop()
+
+print("norm(Delta) =", normDeltaMethod1)
+############
+
+#### Method 2
+print(TFormat.Center(TFormat.InRed("Method 2:")+TFormat.InBlue("using the mass matrix")))
+
+timer = Timer("Duration of method 2").Start()
 
 massMatrix = ComputeL2ScalarProducMatrix(unstructuredMeshClipped, 2)
 
 normDeltaMethod2 = np.sqrt(np.dot(deltaClippedMesh.ravel(order='F'), massMatrix.dot(deltaClippedMesh.ravel(order='F'))))
 
-# Method 3: using the weak form engine
+timer.Stop()
+print("norm(Delta) =", normDeltaMethod2)
+############
+
+#### Method 3
+print(TFormat.Center(TFormat.InRed("Method 3:")+TFormat.InBlue("using the weak form engine")))
+
+timer = Timer("Duration of method 3").Start()
 
 from BasicTools.FE.Integration import IntegrateGeneral
 from BasicTools.FE.SymWeakForm import GetField, GetTestField
-from BasicTools.FE.Spaces.FESpaces import ConstantSpaceGlobal, ConstantSpaceGlobal
+from BasicTools.FE.Spaces.FESpaces import LagrangeSpaceP1, ConstantSpaceGlobal
+from BasicTools.FE.DofNumbering import ComputeDofNumbering
 
 U = GetField("U",2)
 Tt = GetTestField("T",1)
 
 wf = U.T*U*Tt
 
-space, numberings, _, _ = PrepareFEComputation(unstructuredMeshClipped)
-field1 = FEField("U_0",mesh=unstructuredMeshClipped,space=space,numbering=numberings[0], data = deltaClippedMesh[:,0])
-field2 = FEField("U_1",mesh=unstructuredMeshClipped,space=space,numbering=numberings[0], data = deltaClippedMesh[:,1])
+numbering = ComputeDofNumbering(unstructuredMeshClipped,LagrangeSpaceP1)
+field1 = FEField("U_0",mesh=unstructuredMeshClipped,space=LagrangeSpaceP1,numbering=numbering, data = deltaClippedMesh[:,0])
+field2 = FEField("U_1",mesh=unstructuredMeshClipped,space=LagrangeSpaceP1,numbering=numbering, data = deltaClippedMesh[:,1])
 
-from BasicTools.FE.DofNumbering import ComputeDofNumbering
 numbering = ComputeDofNumbering(unstructuredMeshClipped,ConstantSpaceGlobal)
 unkownField = FEField("T",mesh=unstructuredMeshClipped,space=ConstantSpaceGlobal,numbering=numbering)
 
@@ -164,7 +183,11 @@ K, F = IntegrateGeneral(mesh=unstructuredMeshClipped,
 
 normDeltaMethod3 = np.sqrt(F[0])
 
-print("norm Delta using method 1 =", normDeltaMethod1)
-print("norm Delta using method 2 =", normDeltaMethod2)
-print("norm Delta using method 3 =", normDeltaMethod3)
+timer.Stop()
+print("norm(Delta) =", normDeltaMethod2)
+############
+
+print(Timer.PrintTimes())
+
+
 
