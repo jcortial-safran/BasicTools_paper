@@ -177,13 +177,14 @@ numbering = ComputeDofNumbering(unstructuredMesh,LagrangeSpaceP1)
 field = FEField("F",mesh=unstructuredMesh,space=space,numbering=numbering, data = projectedTestField)
 
 numbering = ComputeDofNumbering(unstructuredMesh,ConstantSpaceGlobal)
-unkownField = FEField("T",mesh=unstructuredMesh,space=ConstantSpaceGlobal,numbering=numbering)
+testField = FEField("T",mesh=unstructuredMesh,space=ConstantSpaceGlobal,numbering=numbering)
 
 K, F = IntegrateGeneral(mesh=unstructuredMesh,
                     wform=wf,
                     constants={},
                     fields=[field],
-                    unkownFields=[unkownField],
+                    unkownFields=[],
+                    testFields=[testField],
                     integrationRuleName="LagrangeP1",
                     elementFilter=elFilter)
 
