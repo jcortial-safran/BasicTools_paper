@@ -1,7 +1,7 @@
 from BasicTools.Containers.ConstantRectilinearMesh import ConstantRectilinearMesh
 from BasicTools.Containers.UnstructuredMeshCreationTools import CreateMeshFromConstantRectilinearMesh
 from BasicTools.Containers.UnstructuredMeshModificationTools import Morphing, ComputeSkin
-from BasicTools.Containers.Filters import NodeFilter, ElementFilter 
+from BasicTools.Containers.Filters import NodeFilter, ElementFilter
 from BasicTools.IO import XdmfWriter as XW
 import numpy as np
 
@@ -176,15 +176,14 @@ wf = F.T*Tt
 numbering = ComputeDofNumbering(unstructuredMesh,LagrangeSpaceP1)
 field = FEField("F",mesh=unstructuredMesh,space=space,numbering=numbering, data = projectedTestField)
 
-numbering = ComputeDofNumbering(unstructuredMesh,ConstantSpaceGlobal)
-testField = FEField("T",mesh=unstructuredMesh,space=ConstantSpaceGlobal,numbering=numbering)
+numbering = ComputeDofNumbering(unstructuredMesh,ConstantSpaceGlobal, fromConnectivity=True)
+unkownField = FEField("T",mesh=unstructuredMesh,space=ConstantSpaceGlobal,numbering=numbering)
 
 K, F = IntegrateGeneral(mesh=unstructuredMesh,
                     wform=wf,
                     constants={},
                     fields=[field],
-                    unkownFields=[],
-                    testFields=[testField],
+                    unkownFields=[unkownField],
                     integrationRuleName="LagrangeP1",
                     elementFilter=elFilter)
 
