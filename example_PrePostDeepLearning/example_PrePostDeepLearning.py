@@ -117,7 +117,7 @@ print(string)
 TFormat.Reset()
 
 #### Method 1
-print(TFormat.Center(TFormat.InRed("Method 1:")+TFormat.InBlue("'by hand'")))
+print(TFormat.Center(TFormat.InRed("Method 1: ")+TFormat.InBlue("'by hand'")))
 
 timer = Timer("Duration of method 1")
 
@@ -137,7 +137,7 @@ print("norm(Delta) =", normDeltaMethod1)
 ############
 
 #### Method 2
-print(TFormat.Center(TFormat.InRed("Method 2:")+TFormat.InBlue("using the mass matrix")))
+print(TFormat.Center(TFormat.InRed("Method 2: ")+TFormat.InBlue("using the mass matrix")))
 
 timer = Timer("Duration of method 2").Start()
 
@@ -150,7 +150,7 @@ print("norm(Delta) =", normDeltaMethod2)
 ############
 
 #### Method 3
-print(TFormat.Center(TFormat.InRed("Method 3:")+TFormat.InBlue("using the weak form engine")))
+print(TFormat.Center(TFormat.InRed("Method 3: ")+TFormat.InBlue("using the weak form engine")))
 
 timer = Timer("Duration of method 3").Start()
 
