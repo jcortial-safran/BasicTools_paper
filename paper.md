@@ -188,7 +188,7 @@ writer.Write(unstructuredMesh, PointFields = [], PointFieldsNames = [])
 writer.Close()
 ```
 
-The mesh is transformed by applying a displacement only on the top part of the skin of the mesh, and morphing the rest of the position of the nodes (see also \autoref{MeshMorphFieldProj}, right image):
+The mesh is transformed by applying a displacement only on the top part of the skin of the mesh, and morphing the rest of the position of the nodes (see also \autoref{fig:MeshMorphFieldProj}, right image):
 
 ```python
 # Construct an element tag corresponding to the skin of the mesh 
@@ -216,7 +216,7 @@ morphedNodes = Morphing(unstructuredMesh, dispIdsToTreat, idsToTreat)
 unstructuredMesh.SetNodes(morphedNodes)
 ```
 
-A field is constructed, supported on a bounding box of the morphed mesh (see also \autoref{MeshMorphFieldProj}, bottom-left image):
+A field is constructed, supported on a bounding box of the morphed mesh (see also \autoref{fig:MeshMorphFieldProj}, bottom-left image):
 
 ```python
 # Construct a rectilinear mesh of size 10*10*10 for the bounding box of
@@ -266,7 +266,7 @@ unstructuredMesh.nodes, method = "Interp/Clamp", verbose=True)
 projectedTestField = operator.dot(testField)
 ```
 
-The morphed unstructured mesh containing the projected field is exported in xdmf format (see also \autoref{MeshMorphFieldProj}, right image):
+The morphed unstructured mesh containing the projected field is exported in xdmf format (see also \autoref{fig:MeshMorphFieldProj}, right image):
 ```python
 writer = XW.XdmfWriter()
 writer.SetXmlSizeLimit(0)
