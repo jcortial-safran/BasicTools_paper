@@ -1,7 +1,7 @@
 from BasicTools.Containers.ConstantRectilinearMesh import ConstantRectilinearMesh
 from BasicTools.Containers.UnstructuredMeshCreationTools import CreateMeshFromConstantRectilinearMesh
 from BasicTools.Containers.UnstructuredMeshModificationTools import Morphing, ComputeSkin
-from BasicTools.Containers.Filters import NodeFilter, ElementFilter 
+from BasicTools.Containers.Filters import NodeFilter, ElementFilter
 from BasicTools.IO import XdmfWriter as XW
 import numpy as np
 
@@ -17,7 +17,7 @@ structuredMesh.SetOrigin([0.,0.,0.])
 structuredMesh.SetSpacing([0.1,0.1,0.1])
 
 
-# Construct a rectilinear mesh of size 8*12*16 
+# Convert to unstructured mesh
 unstructuredMesh = CreateMeshFromConstantRectilinearMesh(structuredMesh,ofTetras=True)
 
 
@@ -48,8 +48,7 @@ idsToTreat = nodeFilter.GetIdsToTreat()
 nodalTag = unstructuredMesh.GetNodalTag("ImposedDisp")
 nodalTag.AddToTag(idsToTreat)
 
-
-# compute a displacement to apply to the selected nodes
+# compute a displacement and apply it to the selected nodes
 posIdsToTreat = unstructuredMesh.GetPosOfNodes()[idsToTreat]
 
 dispIdsToTreat = np.zeros(posIdsToTreat.shape)
@@ -57,7 +56,7 @@ dispIdsToTreat[:,0] = (posIdsToTreat[:,2] - 1.) * (posIdsToTreat[:,0] - 1.)
 dispIdsToTreat[:,1] = (posIdsToTreat[:,2] - 1.) * (posIdsToTreat[:,1] - 1.)
 
 
-# morph the mesh by updated the position of the nodes
+# Morph the mesh by updated the position of the nodes
 morphedNodes = Morphing(unstructuredMesh, dispIdsToTreat, idsToTreat)
 unstructuredMesh.SetNodes(morphedNodes)
 
@@ -71,7 +70,10 @@ unstructuredMesh.ComputeBoundingBox()
 
 structuredMeshBB = ConstantRectilinearMesh(dim=3)
 n = 10
-spacing = [(unstructuredMesh.boundingMax[i]-unstructuredMesh.boundingMin[i])/(n-1) for i in range(3)]
+spacing = [
+  (unstructuredMesh.boundingMax[i]-unstructuredMesh.boundingMin[i])/(n-1)
+  for i in range(3)
+]
 structuredMeshBB.SetDimensions([n,n,n])
 structuredMeshBB.SetOrigin(unstructuredMesh.boundingMin)
 structuredMeshBB.SetSpacing(spacing)
@@ -87,7 +89,8 @@ for i in range(n):
         y = j*spacing[1]
         for k in range(n):
             z = k*spacing[2]
-            testField[count] = np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
+            testField[count] = \
+            np.sin(np.pi*(0.25+x))*np.sin(np.pi*y)*np.sin(np.pi*z)
             structuredMeshBBNodes[count,:] = [x,y,z]
             count += 1
 
@@ -145,7 +148,7 @@ print(string)
 TFormat.Reset()
 
 #### Method 1
-print(TFormat.Center(TFormat.InRed("Method 1:")+TFormat.InBlue("'by hand'")))
+print(TFormat.Center(TFormat.InRed("Method 1: ")+TFormat.InBlue("'by hand'")))
 
 timer = Timer("Duration of method 1").Start()
 
@@ -159,7 +162,8 @@ timer.Stop()
 print("integration result =", integrationResult1)
 
 #### Method 2
-print(TFormat.Center(TFormat.InRed("Method 2:")+TFormat.InBlue("using the weak form engine")))
+"""
+print(TFormat.Center(TFormat.InRed("Method 2: ")+TFormat.InBlue("using the weak form engine")))
 
 timer = Timer("Duration of method 2").Start()
 
@@ -176,7 +180,7 @@ wf = F.T*Tt
 numbering = ComputeDofNumbering(unstructuredMesh,LagrangeSpaceP1)
 field = FEField("F",mesh=unstructuredMesh,space=space,numbering=numbering, data = projectedTestField)
 
-numbering = ComputeDofNumbering(unstructuredMesh,ConstantSpaceGlobal)
+numbering = ComputeDofNumbering(unstructuredMesh,ConstantSpaceGlobal, fromConnectivity=True)
 unkownField = FEField("T",mesh=unstructuredMesh,space=ConstantSpaceGlobal,numbering=numbering)
 
 K, F = IntegrateGeneral(mesh=unstructuredMesh,
@@ -190,7 +194,7 @@ K, F = IntegrateGeneral(mesh=unstructuredMesh,
 integrationResult2 = F[0]
 timer.Stop()
 
-print("integration result =", integrationResult2)
+print("integration result =", integrationResult2)"""
 ############
 
 print(Timer.PrintTimes())
