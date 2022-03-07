@@ -170,27 +170,27 @@ Here we present a study case of a thick plate with 2 inclusions. One softer and 
 (We omitted the include statements for the sake of clarity)
 
 ```python
-#Main class to drive a linear Finite Element analysis
+# Main class to drive a linear Finite Element analysis
 problem = UnstructuredFeaSym()
 
-# the mechanical problem (formulas for the weak form)
+# The mechanical problem (formulas for the weak form)
 mecaPhys = MecaPhysics()
 # Definition of the degree of the spaces [1 or 2]
 mecaPhys.SetSpaceToLagrange(P=1)
 
-# add weak form terms to the tangent matrix
+# Add weak form terms to the tangent matrix
 mecaPhys.AddBFormulation("Bulk",mecaPhys.GetBulkFormulation(1.0,0.3))
 mecaPhys.AddBFormulation("Inclusion1",mecaPhys.GetBulkFormulation(5.0,0.3))
 youngModulusInclusionII = 0.5
 mecaPhys.AddBFormulation("Inclusion2",mecaPhys.GetBulkFormulation(0.5,0.3))
 
-# add weak form term to the rhs
+# Add weak form term to the rhs
 mecaPhys.AddLFormulation( "Right", mecaPhys.GetForceFormulation([1,0,0],1))
 
-#push the physics into the FE problem
+# Push the physics into the FE problem
 problem.physics.append(mecaPhys)
 
-# the boundary conditions (block u,v,w on the left part of the mesh)
+# The boundary conditions (block u,v,w on the left part of the mesh)
 dirichlet = KRBlockVector()
 dirichlet.AddArg("u").On('Left').Fix0().Fix1().Fix2()
 
@@ -201,30 +201,30 @@ mesh = ReadGmsh("TwoInclussions.msh")
 mesh.ConvertDataForNativeTreatment()
 print(mesh)
 
-#the the mesh into the problem
+# Set the mesh into the problem
 problem.SetMesh(mesh)
 
-# we compute the numbering (mapping from the mesh to the linear system)
+# We compute the numbering (mapping from the mesh to the linear system)
 problem.ComputeDofNumbering()
 
 # Assembly the linear system
 with Timer("Assembly"):
     k,f = problem.GetLinearProblem()
 
-#compute the constraints to add to the system
+# Compute the constraints to add to the system
 problem.ComputeConstraintsEquations()
 
 with Timer("Solve"):
     problem.Solve(k,f)
 
-#Push the data from the solution vector to the FEFields
+# Push the data from the solution vector to the FEFields
 problem.PushSolutionVectorToUnkownFields()
 
 # Recover a point representation of the displacement
 # This is a no-op if the degree of the interpolation is 1 (P=1)
 problem.mesh.nodeFields["sol"] = GetPointRepresentation(problem.unkownFields)
 
-#Creation of a fake fields to export the rhs member
+# Creation of a fake fields to export the rhs member
 rhsFields = [FEField(mesh=mesh, space=None, \
 numbering=problem.numberings[i]) for i in range(3)]
 VectorToFEFieldsData(f,rhsFields)
@@ -236,7 +236,7 @@ print("(integral in each element)")
 
 symdep = GetField("u",3)
 K = HookeIso(youngModulusInclusionII,0.3,dim=3)
-#this is the projection space
+# This is the projection space
 symCellDataT = SWF.GetTestField("cellData",1)
 
 print("Post process")
