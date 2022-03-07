@@ -250,8 +250,8 @@ p0Numbering = ComputeDofNumbering(mesh,LagrangeSpaceP0)
 energyDensityField = FEField(name="cellData", mesh=mesh, \
 numbering=p0Numbering, space=LagrangeSpaceP0)
 
-# This is the actual integration, because the target space is constant by element,
-# we obtain for each element the strain energy
+# This is the actual integration, because the target space is constant
+# by element, we obtain for each element the strain energy
 m, energyDensity = IntegrateGeneral(mesh=problem.mesh, wform=EnerForm,  \
 constants={}, fields=problem.unkownFields, \
 unkownFields = [energyDensityField], elementFilter=ff)
