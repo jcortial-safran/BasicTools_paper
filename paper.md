@@ -106,7 +106,8 @@ grid = reader.xdmf.GetDomain(0).GetGrid(0)
 
 # Read the mesh
 uMesh = grid.GetSupport()
-# convert all data to the correct binary (float64, int64) representation for the c++ part of BasicTools
+# convert all data to the correct binary (float64, int64) representation
+# for the c++ part of BasicTools
 uMesh.ConvertDataForNativeTreatment()
 
 # Read the solution field 'U'
@@ -131,8 +132,9 @@ The projection operator from the unstructured mesh to the structured mesh is com
 
 ```python
 unstructuredRectMesh = CreateMeshFromConstantRectilinearMesh(rectMesh)
-space, numberings, _offset, _NGauss =  PrepareFEComputation(uMesh)
-inputFEField = FEField(name="U", mesh=uMesh, space=space,numbering=numberings[0])
+space, numberings, _offset, _nGauss =  PrepareFEComputation(uMesh)
+inputFEField = FEField(name="U", mesh=uMesh, space=space, \
+numbering=numberings[0])
 method = "Interp/Clamp"
 operator, status = GetFieldTransferOp(inputFEField, \
 unstructuredRectMesh.nodes, method = method, verbose=True)
@@ -144,11 +146,12 @@ projectedU = operator.dot(U)
 The projection operator from the structured mesh to the unstructured mesh (inverse projection) is computed (see also \autoref{fig:DeepLearningPrepost}, bottom-left image):
 
 ```python
-space, numberings, _offset, _NGauss = PrepareFEComputation(unstructuredRectMesh)
+space, numberings, _os, _nG = PrepareFEComputation(unstructuredRectMesh)
 inputFEField = FEField(name="U", mesh=unstructuredRectMesh, \
 space=space,numbering=numberings[0])
 method = "Interp/Clamp"
-operator, status = GetFieldTransferOp(inputFEField, uMesh.nodes, method = method, verbose=True)
+operator, status = GetFieldTransferOp(inputFEField, uMesh.nodes, \
+method = method, verbose=True)
 
 # Compute the inverse-projected projected field on the unstructured mesh
 inverseProjected_ProjectedU = operator.dot(projectedU)
@@ -171,21 +174,21 @@ Here we present a study case of a thick plate with 2 inclusions. One softer and 
 problem = UnstructuredFeaSym()
 
 # the mechanical problem (formulas for the weak form)
-mecaPhysics = MecaPhysics()
+mecaPhys = MecaPhysics()
 # Definition of the degree of the spaces [1 or 2]
-mecaPhysics.SetSpaceToLagrange(P=1)
+mecaPhys.SetSpaceToLagrange(P=1)
 
 # add weak form terms to the tangent matrix
-mecaPhysics.AddBFormulation( "Bulk",mecaPhysics.GetBulkFormulation(1.0,0.3)  )
-mecaPhysics.AddBFormulation( "Inclusion1",mecaPhysics.GetBulkFormulation(5.0,0.3)  )
+mecaPhys.AddBFormulation("Bulk",mecaPhys.GetBulkFormulation(1.0,0.3))
+mecaPhys.AddBFormulation("Inclusion1",mecaPhys.GetBulkFormulation(5.0,0.3))
 youngModulusInclusionII = 0.5
-mecaPhysics.AddBFormulation( "Inclusion2",mecaPhysics.GetBulkFormulation(0.5,0.3)  )
+mecaPhys.AddBFormulation("Inclusion2",mecaPhys.GetBulkFormulation(0.5,0.3))
 
 # add weak form term to the rhs
-mecaPhysics.AddLFormulation( "Right", mecaPhysics.GetForceFormulation([1,0,0],1)  )
+mecaPhys.AddLFormulation( "Right", mecaPhys.GetForceFormulation([1,0,0],1))
 
 #push the physics into the FE problem
-problem.physics.append(mecaPhysics)
+problem.physics.append(mecaPhys)
 
 # the boundary conditions (block u,v,w on the left part of the mesh)
 dirichlet = KRBlockVector()
@@ -218,16 +221,18 @@ with Timer("Solve"):
 problem.PushSolutionVectorToUnkownFields()
 
 # Recover a point representation of the displacement
-# This is a no-op if the degree of the interpolation is 1( P=1)
+# This is a no-op if the degree of the interpolation is 1 (P=1)
 problem.mesh.nodeFields["sol"] = GetPointRepresentation(problem.unkownFields)
 
 #Creation of a fake fields to export the rhs member
-rhsFields = [ FEField(mesh=mesh,space=None,numbering=problem.numberings[i]) for i in range(3) ]
+rhsFields = [FEField(mesh=mesh, space=None, \
+numbering=problem.numberings[i]) for i in range(3)]
 VectorToFEFieldsData(f,rhsFields)
 problem.mesh.nodeFields["RHS"] = GetPointRepresentation(rhsFields)
 
 print("Done solve")
-print("Compute of the strain energy only on the second inclusion (integral in each element) ")
+print("Compute of the strain energy only on the second inclusion")
+print("(integral in each element)")
 
 symdep = GetField("u",3)
 K = HookeIso(youngModulusInclusionII,0.3,dim=3)
@@ -242,12 +247,14 @@ print("Post process Eval")
 # Set the integration domain
 ff = ElementFilter(mesh=problem.mesh, tag="Inclusion2")
 p0Numbering = ComputeDofNumbering(mesh,LagrangeSpaceP0)
-energyDensityField = FEField(name="cellData", mesh=mesh, numbering=p0Numbering, space=LagrangeSpaceP0)
+energyDensityField = FEField(name="cellData", mesh=mesh, \
+numbering=p0Numbering, space=LagrangeSpaceP0)
 
 # This is the actual integration, because the target space is constant by element,
 # we obtain for each element the strain energy
-m,energyDensity = IntegrateGeneral(mesh=problem.mesh, wform=EnerForm,  constants={},
-                        fields=problem.unkownFields, unkownFields = [ energyDensityField ], elementFilter=ff)
+m, energyDensity = IntegrateGeneral(mesh=problem.mesh, wform=EnerForm,  \
+constants={}, fields=problem.unkownFields, \
+unkownFields = [energyDensityField], elementFilter=ff)
 
 energyDensityField.data = energyDensity
 
@@ -259,8 +266,10 @@ print("Strain energy on the second inclusion:", np.sum(energyDensity) )
 writer = XdmfWriter.XdmfWriter('TwoInclussions_Output.xdmf')
 writer.SetHdf5(False)
 writer.Open()
-writer.Write(mesh,PointFields=list(mesh.nodeFields.values()), PointFieldsNames=list(mesh.nodeFields.keys()),
-                CellFields=list(mesh.elemFields.values()), CellFieldsNames=list(mesh.elemFields.keys()))
+writer.Write(mesh,PointFields=list(mesh.nodeFields.values()), \
+                  PointFieldsNames=list(mesh.nodeFields.keys()), \
+                  CellFields=list(mesh.elemFields.values()), \
+                  CellFieldsNames=list(mesh.elemFields.keys()))
 writer.Close()
 ```
 
@@ -269,45 +278,3 @@ writer.Close()
 The authors wish to thank Julien Cortial (Safran) for his contributions to the library.
 
 # References
-
-<!--
-# Citations
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
-
-# Figures
-
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
-
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
-
-# Mathematics
-
-Single dollars are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
-
-Double dollars make self-standing equations:
-
-$$\Theta(x) = \left\{\begin{array}{l}
-0\textrm{ if } x < 0\cr
-1\textrm{ else}
-\end{array}\right.$$
-
-You can also use plain \LaTeX for equations
-\begin{equation}\label{eq:fourier}
-\hat f(\omega) = \int_{-\infty}^{\infty} f(x) e^{i\omega x} dx
-\end{equation}
-and refer to \autoref{eq:fourier} from text.
-
- -->
