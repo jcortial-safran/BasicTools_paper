@@ -13,6 +13,8 @@ authors:
   - name: Fabien Casenave
     orcid: 0000-0002-8810-9128
     affiliation: 1
+  - name: Julien Cortial
+    affiliation: 1
 affiliations:
  - name: Safran Tech, Digital Sciences & Technologies Department, Rue des Jeunes Bois, Châteaufort, 78114 Magny-Les-Hameaux, France
    index: 1
@@ -273,8 +275,11 @@ writer.Write(mesh,PointFields=list(mesh.nodeFields.values()), \
 writer.Close()
 ```
 
+<!---
 # Acknowledgements
 
 The authors wish to thank Julien Cortial (Safran) for his contributions to the library.
+-->
+
 
 # References
