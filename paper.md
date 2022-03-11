@@ -89,16 +89,16 @@ The large majority of functions are illustrated in the same file where they are 
 
 # Examples
 
-We detail two examples illustrating some of the features listed in the previous section.
-The complete examples can be found in the documentation of BasicTools.
+We detail two examples illustrating some of the features mentioned in the previous section.
+The complete examples can be found in the BasicTools documentation.
 
 ## Pre/post deep learning
 
-Some deep learning workflow applied to physics contexts require the projection of fields defined on an unstructured mesh onto a rectilinear grid, and inversely.
+A class of deep learning workflow applied to physical simulation require the projection of fields defined on an unstructured mesh onto a rectilinear grid, and inversely.
 
-![Example of deep learning prepost.\label{fig:DeepLearningPrepost}](DeepLearningPrepost.png)
+![Example of deep learning.\label{fig:DeepLearningPrepost}](DeepLearningPrepost.png)
 
-The mesh and solution associated to a previously computed flow field is read (see also \autoref{fig:DeepLearningPrepost}, top-left image):
+The mesh and solution associated with a previously computed flow field is read (see also \autoref{fig:DeepLearningPrepost}, top-left image):
 
 ```python
 reader = XR.XdmfReader(filename = "PrePostDeepLearning_Input.xmf")
@@ -130,9 +130,10 @@ rectMesh.SetSpacing([Lx/(Nx-1), Ly/(Ny-1)])
 rectMesh.SetOrigin([0.,uMesh.boundingMin[1]])
 ```
 
-The projection operator from the unstructured mesh to the structured mesh is computed (see also \autoref{fig:DeepLearningPrepost}, top-right image):
+The projection operator from the unstructured mesh to the structured mesh is computed and applied (see also \autoref{fig:DeepLearningPrepost}, top-right image):
 
 ```python
+# Compute the projected field on the structured mesh
 unstructuredRectMesh = CreateMeshFromConstantRectilinearMesh(rectMesh)
 space, numberings, _offset, _nGauss =  PrepareFEComputation(uMesh)
 inputFEField = FEField(name="U", mesh=uMesh, space=space, \
@@ -141,13 +142,14 @@ method = "Interp/Clamp"
 operator, status = GetFieldTransferOp(inputFEField, \
 unstructuredRectMesh.nodes, method = method, verbose=True)
 
-# Compute the projected field on the structured mesh
+# Application of the projection
 projectedU = operator.dot(U)
 ```
 
-The projection operator from the structured mesh to the unstructured mesh (inverse projection) is computed (see also \autoref{fig:DeepLearningPrepost}, bottom-left image):
+The projection operator from the structured mesh to the unstructured mesh (inverse projection) is computed and applied (see also \autoref{fig:DeepLearningPrepost}, bottom-left image):
 
 ```python
+# Compute the inverse-projected projected field on the unstructured mesh
 space, numberings, _os, _nG = PrepareFEComputation(unstructuredRectMesh)
 inputFEField = FEField(name="U", mesh=unstructuredRectMesh, \
 space=space,numbering=numberings[0])
@@ -155,7 +157,7 @@ method = "Interp/Clamp"
 operator, status = GetFieldTransferOp(inputFEField, uMesh.nodes, \
 method = method, verbose=True)
 
-# Compute the inverse-projected projected field on the unstructured mesh
+# Application of the projection
 inverseProjected_ProjectedU = operator.dot(projectedU)
 ```
 
@@ -165,13 +167,13 @@ The difference between the initial solution field and the result of the projecti
 
 ## Mechanical analysis: Thick plate with 2 inclusions
 
-Here we present a study case of a thick plate with 2 inclusions. One softer and the other stiffer than the base material. We then compute the energy deformation on only one inclusion.
+Here we present a study case of a thick plate with 2 inclusions: One softer and the other stiffer than the base material. We then compute the strain energy on only one inclusion.
 
-![Example of a mechanical thick plate with two inclusions analysis.\label{fig:TwoInclusions}](TwoInclusions_img1.png)
-
-(We omitted the include statements for the sake of clarity)
+![Analysis of a mechanical thick plate with two inclusions.\label{fig:TwoInclusions}](TwoInclusions_img1.png)
 
 ```python
+#We omitted the include statements for the sake of clarity
+
 # Main class to drive a linear Finite Element analysis
 problem = UnstructuredFeaSym()
 
