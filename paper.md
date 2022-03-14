@@ -77,7 +77,7 @@ The main features of the library are
 - meshes (in the folder `Containers`):
   ConstantRectilinearMesh.py and UnstructuredMesh.py define the data model for constant rectilinear and unstructured mesh types. Unstructured meshes are efficient in the sense that elements are stored using only one array for each element type. Both mesh types can feature nodes and element tags. Many functions are available for creating, cleaning and modifying meshes. In particular, field projection operations enable to project fields defined on a mesh onto a set of points, using various methods and options, with respect to the location of the destination points being inside or outside the origin mesh (finite element interpolation, extrapolation, clamped evaluations, nearest neighbors, zero fill). Mesh morphing capabilities are also included.
 - filters (in the folder `Containers`):
-  Various types of `ElementFilter` and `NodeFilter` enable to handle subparts of the meshes by selecting element- and node-sets using threshold functions, tags, element types, element dimensionality and masks. Arbitrary filters can be combined using boolean operations (union, complementary...) to construct advanced filters on points and elements.
+  Various types of `ElementFilter`s and `NodeFilter`s enable to handle subparts of the meshes by selecting element- and node-sets using threshold functions, tags, element types, element dimensionality and masks. Arbitrary filters can be combined using boolean operations (union, complementary...) to construct advanced filters on points and elements.
 - a finite element engine (in the folder `FE`):
   A general weak formulation engine able to integrate fields over any part of the considered mesh is available. FETools.py contains specific functions for Lagrange P1 finite elements, including the computation of stiffness and mass matrices. The domain of integration is defined using `ElementFilter`s to make the integration domain flexible. Depending on the parameter of the integration, the result can be a matrix (e.g. tangent operator), a vector (e.g. right hand side term), or a scalar (e.g. volume, energy)
 - input/output functions (in the folder `IO`):
@@ -187,7 +187,7 @@ youngModulusInclusionII = 0.5
 mecaPhys.AddBFormulation("Inclusion2", mecaPhys.GetBulkFormulation(0.5, 0.3))
 
 # Add weak form term to the rhs
-mecaPhys.AddLFormulation( "Right", mecaPhys.GetForceFormulation([1, 0, 0], 1))
+mecaPhys.AddLFormulation("Right", mecaPhys.GetForceFormulation([1, 0, 0], 1))
 
 # Push the physics into the FE problem
 problem.physics.append(mecaPhys)
