@@ -25,19 +25,19 @@ bibliography: paper.bib
 
 # Summary
 
-Numerical simulations of physical phenomena can be computed by many (commercially/free) software, but many similar operations are required when producing, preparing and consuming these simulations. Post-treatments of physical fields are a common need, as well as handling and modifying meshes and fields. BasicTools is a Python library designed especially to address these supporting tasks. It contains an efficient data model for meshes and field objects and input/output routines compatible with various formats. A finite element engine allows the assembling of abstract variational formulations, differential operators and the integration of fields on volume and surfaces.
+Numerical simulations of physical phenomena can be computed by many (commercially/free) software packages, but despite the apparent variety, they rely on a relatively small set of operations when producing, preparing and consuming these simulations. For instance, post-treatments of physical fields are a common need, as well as handling and modifying meshes and fields. BasicTools is a Python library designed especially to address these supporting tasks. It features an efficient data model for meshes and field objects and input/output routines compatible with various formats. A finite element engine allows to assemble abstract variational formulations, take into account differential operators and integrate fields on volume and surfaces.
 
-BasicTools has been used in various projects in artificial intelligence and model order reduction for physical problems [@ROM-net; @mca26010017; @UQindustrialDesign; @datatargetVAE], topological optimization [@nardoni] and material sciences [@pymicro].
+BasicTools has been (and is still actively) used in various projects in artificial intelligence and model order reduction for physical problems [@ROM-net; @mca26010017; @UQindustrialDesign; @datatargetVAE], topology optimization [@nardoni] and material sciences [@pymicro].
 
 # Statement of need
 
-When considering numerical simulation data from various sources, different formats may be handled. Each software can include its own post-treatment tool, which complexifies any comparison task or workflows mixing from different origins. Hence, common tasks and post-treatments may need to be reimplemented.
+Oftentimes in real-world simulation, data is obtained from various sources, each encoded in its own format. Each software package typically includes its own post-treatment tool, thus limiting interoperability and preventing to set up seamless workflows. Typically common tasks must be routinely reimplemented, often with subtle variations.
 
-With BasicTools, we address these assessments by proposing a data model for meshes and associated physical fields, that is populated thanks to various reader and can be exported by various writers. Additionally, many treatment tools are implemented on these meshes and physical fields, including a finite element engine and field projection operators. We underline the fact that no new mesh or solution format is being specified: the goal is not to try and impose a new standard, but rather to handle existing data formats and propose common tasks and services on these data. Additionally BasicTools contain the tools to convert meshes to other "in memory" formats (Vtk [@VTK4], PyVista [@sullivan2019pyvista], MeshIO [@meshio]), this make possible to mix (and reuse) treatments already available in other frameworks.
+With BasicTools, we address these concerns by proposing a data model for meshes and associated physical fields, that can be populated thanks to various reader and exported by various writers. Additionally, many treatment tools are implemented on these meshes and physical fields, including a finite element engine and field projection operators. Notably no new mesh or solution format is forced upon the user: the goal is to handle existing data formats and offer common tasks and services on these data. Additionally BasicTools contains tools to convert meshes to other "in memory" formats (Vtk [@VTK4], PyVista [@sullivan2019pyvista], MeshIO [@meshio]), this make possible to mix (and reuse) treatments already available in other frameworks.
 
 # State of the field
 
-In the computational fluid dynamics community, the CGNS [@cgns] standard has been proposed for analysis data. In the solid mechanics community, up to our knowledge, no such standard exists and a multiplicity of format exist. Concerning meshes, MeshIO has been proposed for conversion between various file format. For the manipulation of meshes Vtk is a good candidate but lacks some capabilities related to the solid mechanics community (e.g. integration point data). Finite element engines allowing to assemble abstract variational formulations are available in the codes FreeFem++[@freefempp] and FEniCS [@fenics].
+In the computational fluid dynamics community, the CGNS [@cgns] standard has been proposed for analysis data. In the solid mechanics community, in the authors' knowledge, no such de facto standard exists. As far as meshes are concerned , MeshIO has been proposed for conversion between various file formats. For the manipulation of meshes vtk is a good candidate but lacks some capabilities of tremendous value for the solid mechanics community (e.g. integration point data). Finite element engines allowing to assemble abstract variational formulations are available in FreeFem++[@freefempp] and FEniCS [@fenics].
 
 # Overview
 
@@ -72,20 +72,20 @@ BasicTools
 ```
 </a>
 
-The main objects and features of the library are
+The main features of the library are
 
 - meshes (in the folder Containers):
-  ConstantRectilinearMesh.py and UnstructuredMesh.py define the data model for self-explicit mesh types. Unstructured meshes are efficient in the sense that elements are stored using only one array for each element type. Both mesh types can feature nodes and element tags. Many functions are available for creating, cleaning and modifying meshes. In particular, field projection operations enable to project fields defined on a mesh onto a set of points, using various methods and options, with respect to the location of the destination points being inside or outside the origin mesh (finite element interpolation, extrapolation, clamped evaluations, nearest neighbors, zero fill). Mesh morphing capacities are also included.
+  ConstantRectilinearMesh.py and UnstructuredMesh.py define the data model for constant rectilinear and unstructured mesh types. Unstructured meshes are efficient in the sense that elements are stored using only one array for each element type. Both mesh types can feature nodes and element tags. Many functions are available for creating, cleaning and modifying meshes. In particular, field projection operations enable to project fields defined on a mesh onto a set of points, using various methods and options, with respect to the location of the destination points being inside or outside the origin mesh (finite element interpolation, extrapolation, clamped evaluations, nearest neighbors, zero fill). Mesh morphing capabilities are also included.
 - filters (in the folder Containers):
-  ElementFilter and NodeFilter enable to easily handle subparts of the meshes by selecting element and node set using threshold functions, tags, element types, element dimensionality and masks. This filter can be combined using boolean operations (union, complementary...) to construct advanced filters  on points and elements.
+  ElementFilter and NodeFilter enable to handle subparts of the meshes by selecting element- and node-sets using threshold functions, tags, element types, element dimensionality and masks. Arbitrary filters can be combined using boolean operations (union, complementary...) to construct advanced filters  on points and elements.
 - a finite element engine (in the folder FE):
-  A general weak formulation engine is available, enable to integrate fields over any part of the considered mesh. FETools.py contains particular functions for Lagrange P1 finite elements, including the computation of stiffness and mass matrices. The domain of integration is defined using the ElementFilters, this make the integration domain flexible. Depending on the parameter of the integration the result can be a matrix (i.e. tangent operator), vector (i.e. right hands side term), or a scalar (i.e. volume, energy)
+  A general weak formulation engine able to integrate fields over any part of the considered mesh is available. FETools.py contains specific functions for Lagrange P1 finite elements, including the computation of stiffness and mass matrices. The domain of integration is defined using the ElementFilters to make the integration domain flexible. Depending on the parameter of the integration the result can be a matrix (e.g. tangent operator), a vector (e.g. right hands side term), or a scalar (e.g. volume, energy)
 - input/output functions (in the folder IO):
-  Various readers (writer) for importing (exporting) meshes and solution fields from (to) the internal data model of BasicTools are available. Available formats include geo/geof (Z-set [@zset]), vtk, xdmf, samcef, abaqus. The bridge with MeshIO brings extra import/export capabilities by wrapping the MeshIO readers/writer with the same API as BasicTools.
+  Various readers (respectively, writers) for importing (exporting) meshes and solution fields from (to) the internal data model of BasicTools are available. Available formats include geo/geof (Z-set [@zset]), vtk, xdmf, samcef, abaqus. The bridge with MeshIO brings extra import/export capabilities by wrapping the MeshIO readers/writers with the BasicTools API.
 - implicit geometry engine (in the folder ImplicitGeometry):
-  This object are used to define geometries using only implicit geometries (level-set function). Basic shapes (spheres, plane, cylinders, cubes), operator (symmetry, translation, rotation) as well as binary operators (union, difference, intersection) can be used to construct complex shapes. Then these shapes can be used to select elements (using the ElementFilter), or be evaluated on a point cloud (e.g. the points of a mesh) to explicitly construct the iso-zero surface.
+  The classes are used to define arbitrary subdomains using only implicit geometries (level-set function). Basic shapes (spheres, half-spaces, cylinders, cubes), transformations (symmetry, translation, rotation) as well as binary operators (union, difference, intersection) can be used to construct complex shapes. Then these shapes can be used to select elements (using the ElementFilter), or be evaluated on a point cloud (e.g. the points of a mesh) to explicitly construct the iso-zero surface.
 
-The large majority of functions are illustrated in the same file where they are defined, in CheckIntegrity functions. Additionally, some feature are illustrated below.
+The large majority of functions are illustrated in the same file where they are defined, in ```CheckIntegrity``` functions. Additionally, some feature are illustrated below.
 
 # Examples
 
@@ -167,7 +167,7 @@ The difference between the initial solution field and the result of the projecti
 
 ## Mechanical analysis: Thick plate with 2 inclusions
 
-Here we present a study case of a thick plate with 2 inclusions: One softer and the other stiffer than the base material. We then compute the strain energy on only one inclusion.
+Here we present a study case of a thick plate with 2 inclusions: one softer and the other stiffer than the base material. We then compute the strain energy on only one inclusion.
 
 ![Analysis of a mechanical thick plate with two inclusions.\label{fig:TwoInclusions}](TwoInclusions_img1.png)
 
